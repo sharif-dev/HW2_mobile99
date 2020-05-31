@@ -1,14 +1,55 @@
 package com.saleh.hw2_mobile99
 
+import android.R.attr
+import android.content.Context
+import android.content.SharedPreferences
+
 import android.os.Bundle
+import android.text.InputType
 import androidx.fragment.app.DialogFragment
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import timber.log.Timber
 
-class SettingsFragment : PreferenceFragmentCompat() {
+
+class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        val numberPreference: EditTextPreference? = findPreference("gyro_thresh")
+
+        numberPreference?.setOnBindEditTextListener { editText ->
+            editText.inputType = InputType.TYPE_CLASS_NUMBER
+        }
     }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        if (key == null)
+            return
+        Timber.i(key)
+        val preference: Preference = findPreference(key) ?: return
+        DataHolders.updateValue(requireActivity())
+        if (preference is TimePreference) {
+
+        } else if (preference is EditTextPreference) {
+
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+    }
+
+
 
     override fun onDisplayPreferenceDialog(preference: Preference) {
         var dialogFragment: DialogFragment? = null
@@ -29,4 +70,5 @@ class SettingsFragment : PreferenceFragmentCompat() {
             super.onDisplayPreferenceDialog(preference)
         }
     }
+
 }
