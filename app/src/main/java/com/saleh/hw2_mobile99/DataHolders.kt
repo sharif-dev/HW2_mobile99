@@ -13,7 +13,7 @@ enum class AlarmState(val value: Int) {
 }
 
 object DataHolders {
-    var gyroSpeedThreshold: Int = 10
+    var gyroSpeedThreshold: Int = 5
         private set
     var alarmTime: String = "00:00"
         private set

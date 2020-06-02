@@ -17,6 +17,8 @@ import java.util.*
 object AlarmManaging {
     private lateinit var alarmManager: AlarmManager
 
+    const val debugTime = false
+
     fun initMe(manager: AlarmManager) {
         alarmManager = manager
     }
@@ -46,17 +48,20 @@ object AlarmManaging {
         var today = true
         val calendar: Calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
-//            if (get(Calendar.HOUR_OF_DAY) > hour)
-//                today = false
-//            if (get(Calendar.HOUR_OF_DAY) == hour && get(Calendar.MINUTE) >= min)
-//                today = false
-//            if (!today) {
-//                add(Calendar.DAY_OF_MONTH, 1)
-//            }
-//            set(Calendar.HOUR_OF_DAY, hour)
-//            set(Calendar.MINUTE, min)
-//            set(Calendar.SECOND, 0)
-            add(Calendar.SECOND, 10)
+            if (!debugTime) {
+                if (get(Calendar.HOUR_OF_DAY) > hour)
+                    today = false
+                if (get(Calendar.HOUR_OF_DAY) == hour && get(Calendar.MINUTE) >= min)
+                    today = false
+                if (!today) {
+                    add(Calendar.DAY_OF_MONTH, 1)
+                }
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, min)
+                set(Calendar.SECOND, 0)
+            } else {
+                add(Calendar.SECOND, 10)
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

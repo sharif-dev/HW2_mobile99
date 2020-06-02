@@ -14,6 +14,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import timber.log.Timber
+import kotlin.math.abs
 
 
 class AlarmActivity : AppCompatActivity() {
@@ -28,12 +29,14 @@ class AlarmActivity : AppCompatActivity() {
     private val gyroSensorListener = object : SensorEventListener {
         override fun onSensorChanged(sensorEvent: SensorEvent) {
 
-            if (sensorEvent.values[2] >= DataHolders.gyroSpeedThreshold) {
-                Timber.i("${sensorEvent.values[0]}  ${sensorEvent.values[1]}  ${sensorEvent.values[2]}")
-                myJob.cancel()
-                cancelVibrate()
-                DataHolders.setIsAlarmPending(this@AlarmActivity, AlarmState.NOT_SET)
-                finish()
+            if (abs(sensorEvent.values[2]) >= DataHolders.gyroSpeedThreshold) {
+                if (!myJob.isCancelled) {
+                    Timber.i("${sensorEvent.values[0]}  ${sensorEvent.values[1]}  ${sensorEvent.values[2]}")
+                    cancelVibrate()
+                    DataHolders.setIsAlarmPending(this@AlarmActivity, AlarmState.NOT_SET)
+                    myJob.cancel()
+                    finish()
+                }
             }
         }
 
@@ -86,7 +89,10 @@ class AlarmActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (DataHolders.alarmPending == AlarmState.WAIT_FOR_STOP) {
-            startActivity(Intent(this, this::class.java))
+            finish()
+            val i = Intent(this, AlarmActivity::class.java)
+            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            this.applicationContext.startActivity(i)
         } else {
             sensorManager.unregisterListener(gyroSensorListener)
         }
@@ -105,7 +111,7 @@ class AlarmActivity : AppCompatActivity() {
 
         try {
             vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            val pattern = longArrayOf(0, 100, 1000)
+            val pattern = longArrayOf(0, 1000, 450)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
             } else {
