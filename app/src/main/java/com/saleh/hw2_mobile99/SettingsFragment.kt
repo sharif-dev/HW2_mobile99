@@ -15,6 +15,7 @@ import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
+import com.saleh.hw2_mobile99.alarmManager.AlarmManaging
 import com.saleh.hw2_mobile99.application.MyReceiver
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -40,6 +41,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
         preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
 
         alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        AlarmManaging.initMe(alarmManager)
+
         DataHolders.updateValue(requireActivity())
     }
 
@@ -57,18 +61,16 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
         if (preference is TimePreference) {
 
-
-            setAlarm(preference.hour, preference.minute)
-
+            AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), preference.hour, preference.minute)
 
         } else if (preference is SwitchPreference) {
             if (key == context?.getString(R.string.alarmEnabledKey)) {
                 if (!DataHolders.alarmEnabled) {
-                    cancelAlarm()
+                    AlarmManaging.cancelAlarm("ALARM_ACTION", requireContext())
                 } else {
                     val hour = DataHolders.alarmTime.split(":")[0].toInt()
                     val min = DataHolders.alarmTime.split(":")[1].toInt()
-                    setAlarm(hour, min)
+                    AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), hour, min)
                 }
             }
         } else if (preference is EditTextPreference) {
@@ -77,71 +79,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     }
 
-    fun setAlarm(hour: Int, min: Int) {
-        if (!DataHolders.alarmEnabled) {
-            return
-        }
-        if (DataHolders.alarmPending == AlarmState.PENDING) {
-            cancelAlarm()
-        }
-
-        val alarmIntent = Intent(context, MyReceiver::class.java).let { intent ->
-            intent.action = "ALARM_ACTION"
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            PendingIntent.getBroadcast(context, 0, intent, 0)
-        }
-
-        val calendar: Calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-//            var today = true
-//            Timber.i("${get(Calendar.HOUR_OF_DAY)} ${get(Calendar.HOUR)}")
-//            if (get(Calendar.HOUR_OF_DAY) > hour)
-//                today = false
-//            if (get(Calendar.HOUR_OF_DAY) == hour && get(Calendar.MINUTE) >= min)
-//                today = false
-//            if (!today) {
-//                add(Calendar.DAY_OF_MONTH, 1)
-//            }
-//            set(Calendar.HOUR_OF_DAY, hour)
-//            set(Calendar.MINUTE, min)
-//            set(Calendar.SECOND, 0)
-            add(Calendar.SECOND, 10)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis, alarmIntent
-            )
-        } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis, alarmIntent
-            )
-        }
-        DataHolders.setIsAlarmPending(requireContext(), AlarmState.PENDING)
-        Toast.makeText(
-            context,
-            "Alarm Set For ${SimpleDateFormat.getDateTimeInstance().format(calendar.time)}",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
-    fun cancelAlarm() {
-        if (DataHolders.alarmPending != AlarmState.PENDING) {
-            return
-        }
-        val alarmIntent = Intent(context, MyReceiver::class.java).let { intent ->
-            intent.action = "ALARM_ACTION"
-            PendingIntent.getBroadcast(context, 0, intent, 0)
-        }
-        if (alarmIntent != null) {
-            alarmManager.cancel(alarmIntent)
-            Timber.i("Canceled")
-        }
-        DataHolders.setIsAlarmPending(requireContext(), AlarmState.NOT_SET)
-    }
 
     override fun onPause() {
         super.onPause()
