@@ -12,9 +12,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.saleh.hw2_mobile99.AlarmActivity
-import com.saleh.hw2_mobile99.R
-import com.saleh.hw2_mobile99.SettingsActivity
+import com.saleh.hw2_mobile99.*
 import timber.log.Timber
 
 
@@ -24,6 +22,10 @@ class MyReceiver : BroadcastReceiver() {
         if (intent.action == "ALARM_ACTION") {
             val i = Intent(context, AlarmActivity::class.java)
             i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            DataHolders.updateValue(context)
+            DataHolders.setIsAlarmPending(context, AlarmState.WAIT_FOR_STOP)
+            Timber.i("Received :")
+            DataHolders.printState()
             context.applicationContext.startActivity(i)
         }
         Timber.i("Intent Received")

@@ -1,18 +1,17 @@
 package com.saleh.hw2_mobile99
 
+import android.app.ActivityManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.provider.Settings
-import android.view.WindowManager
+import android.view.KeyEvent
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
+import androidx.fragment.app.FragmentActivity
 import timber.log.Timber
 
 
@@ -28,22 +27,6 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-//        val v = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-//        val pattern = longArrayOf(0, 100, 1000, 300, 200, 100, 500, 200, 100)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            v.vibrate(VibrationEffect.createWaveform(pattern, 0))
-//        } else {
-//            v.vibrate(20000)
-//        }
-//
-//        CoroutineScope(Dispatchers.Main).launch {
-//            withContext(Dispatchers.Default) {
-//                delay(10000)
-//            }
-//            v.cancel()
-//        }
-
         requestOverlayPermission()
     }
 

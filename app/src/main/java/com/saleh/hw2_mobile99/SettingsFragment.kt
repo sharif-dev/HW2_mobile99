@@ -26,14 +26,20 @@ class SettingsFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private lateinit var alarmManager: AlarmManager
+    var showCancelToast = true
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        val numberPreference: EditTextPreference? = findPreference("gyro_thresh")
+        initializePreferenceViews()
+    }
+
+    fun initializePreferenceViews() {
+        val numberPreference: EditTextPreference? = findPreference(context?.getString(R.string.alarmGyroThreshold)!!)
         numberPreference?.setOnBindEditTextListener { editText ->
             editText.inputType = InputType.TYPE_CLASS_NUMBER
         }
+
     }
 
     override fun onResume() {
@@ -45,6 +51,15 @@ class SettingsFragment : PreferenceFragmentCompat(),
         AlarmManaging.initMe(alarmManager)
 
         DataHolders.updateValue(requireActivity())
+
+        if (DataHolders.alarmEnabled && DataHolders.alarmPending == AlarmState.NOT_SET) {
+            //AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), DataHolders.alarmTime)
+            disableAlarm()
+        } else if (DataHolders.alarmPending == AlarmState.WAIT_FOR_STOP) {
+            val i = Intent(context, AlarmActivity::class.java)
+            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context?.applicationContext?.startActivity(i)
+        }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -64,13 +79,15 @@ class SettingsFragment : PreferenceFragmentCompat(),
             AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), preference.hour, preference.minute)
 
         } else if (preference is SwitchPreference) {
+
+
+
             if (key == context?.getString(R.string.alarmEnabledKey)) {
                 if (!DataHolders.alarmEnabled) {
-                    AlarmManaging.cancelAlarm("ALARM_ACTION", requireContext())
+                    AlarmManaging.cancelAlarm("ALARM_ACTION", requireContext(), showCancelToast)
+                    showCancelToast = true
                 } else {
-                    val hour = DataHolders.alarmTime.split(":")[0].toInt()
-                    val min = DataHolders.alarmTime.split(":")[1].toInt()
-                    AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), hour, min)
+                    AlarmManaging.setAlarm("ALARM_ACTION", requireContext(), DataHolders.alarmTime)
                 }
             }
         } else if (preference is EditTextPreference) {
@@ -79,6 +96,14 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     }
 
+    private fun disableAlarm() {
+        findPreference<Preference>(context?.getString(R.string.alarmEnabledKey)!!)?.apply {
+            (this as SwitchPreference).apply {
+                isChecked = false
+                showCancelToast = false
+            }
+        }
+    }
 
     override fun onPause() {
         super.onPause()

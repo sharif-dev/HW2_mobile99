@@ -21,6 +21,12 @@ object AlarmManaging {
         alarmManager = manager
     }
 
+    fun setAlarm(action: String, context: Context, time: String) {
+        val hour = time.split(":")[0].toInt()
+        val min = time.split(":")[1].toInt()
+        this.setAlarm(action, context, hour, min)
+    }
+
     fun setAlarm(action: String, context: Context, hour: Int, min: Int) {
         check(this::alarmManager.isInitialized) { "Initialize Alarm Manager First" }
         if (!DataHolders.alarmEnabled) {
@@ -37,10 +43,9 @@ object AlarmManaging {
             PendingIntent.getBroadcast(context, 0, intent, 0)
         }
 
+        var today = true
         val calendar: Calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
-//            var today = true
-//            Timber.i("${get(Calendar.HOUR_OF_DAY)} ${get(Calendar.HOUR)}")
 //            if (get(Calendar.HOUR_OF_DAY) > hour)
 //                today = false
 //            if (get(Calendar.HOUR_OF_DAY) == hour && get(Calendar.MINUTE) >= min)
@@ -68,8 +73,8 @@ object AlarmManaging {
         DataHolders.setIsAlarmPending(context, AlarmState.PENDING)
         Toast.makeText(
             context,
-            "Alarm Set For ${SimpleDateFormat.getDateTimeInstance().format(calendar.time)}",
-            Toast.LENGTH_LONG
+            "Alarm Set For ${if (today) "Today" else "Tomorrow"} at  ${SimpleDateFormat.getTimeInstance().format(calendar.time)}",
+            Toast.LENGTH_SHORT
         ).show()
     }
 

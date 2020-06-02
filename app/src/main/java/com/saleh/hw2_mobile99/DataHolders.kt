@@ -14,9 +14,13 @@ enum class AlarmState(val value: Int) {
 
 object DataHolders {
     var gyroSpeedThreshold: Int = 10
+        private set
     var alarmTime: String = "00:00"
+        private set
     var alarmEnabled: Boolean = true
+        private set
     var alarmPending: AlarmState = AlarmState.NOT_SET
+        private set
 
     fun updateValue(context: Context) {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
@@ -34,9 +38,10 @@ object DataHolders {
         val prefs: SharedPreferences = context.applicationContext.getSharedPreferences("alarmDetails", MODE_PRIVATE)
         val editor = prefs.edit()
         editor.putString(context.getString(R.string.alarmPending), state.name)
-        editor.apply()
+        editor.commit()
         alarmPending = state
     }
+
 
     fun getIsAlarmPending(context: Context): AlarmState {
         val prefs: SharedPreferences = context.applicationContext.getSharedPreferences("alarmDetails", MODE_PRIVATE)

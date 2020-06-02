@@ -20,4 +20,5 @@
     <string name="alarmTimeKey">alarm_time</string>
     <string name="alarmGyroThreshold">gyro_thresh</string>
     <string name="alarmPending">alarm_pending</string>
+    <string name="wake_up_text">Wake Up Please !\nROTATE YOUR DEVICE</string>
 </resources>
