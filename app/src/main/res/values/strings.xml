@@ -19,4 +19,5 @@
     <string name="alarmEnabledKey">alarm_enabled</string>
     <string name="alarmTimeKey">alarm_time</string>
     <string name="alarmGyroThreshold">gyro_thresh</string>
+    <string name="alarmPending">alarm_pending</string>
 </resources>
