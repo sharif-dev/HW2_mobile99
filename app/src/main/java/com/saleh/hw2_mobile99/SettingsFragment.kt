@@ -81,7 +81,6 @@ class SettingsFragment : PreferenceFragmentCompat(),
         } else if (preference is SwitchPreference) {
 
 
-
             if (key == context?.getString(R.string.alarmEnabledKey)) {
                 if (!DataHolders.alarmEnabled) {
                     AlarmManaging.cancelAlarm("ALARM_ACTION", requireContext(), showCancelToast)

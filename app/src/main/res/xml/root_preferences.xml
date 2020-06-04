@@ -27,5 +27,18 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="ShakeService">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="shake_enable"
+            android:title="Shake Enabled ?" />
+
+        <SeekBarPreference
+
+            />
+
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
